@@ -14,6 +14,7 @@ Para compilar los archivos fuente, es necesario utilizar el compilador `gcc` en 
 gcc broker_udp.c -o broker
 gcc subscriber_udp.c -o suscriptor
 gcc publisher_udp.c -o publicador
+```
 
 
 ## Instrucciones de Compilación
@@ -24,6 +25,7 @@ Para compilar los archivos fuente, es necesario utilizar el compilador `gcc` en 
 gcc broker_udp.c -o broker
 gcc subscriber_udp.c -o suscriptor
 gcc publisher_udp.c -o publicador
+```
 
 
 Instrucciones de Ejecución
