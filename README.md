@@ -58,7 +58,7 @@ Vuelva a compilar (gcc publisher_udp.c -o publicador).
 
 Ejecute el sistema y observe en las terminales de los suscriptores cómo la secuencia lógica de los mensajes se rompe debido al descarte de paquetes en el kernel.
 
-
+---
 
 ## Documentación y Justificación de Librerías
 En estricto cumplimiento con los lineamientos del laboratorio, no se utilizaron librerías externas de terceros. El sistema fue construido íntegramente utilizando la interfaz estándar de Berkeley Sockets de los sistemas POSIX.
@@ -91,6 +91,8 @@ INADDR_ANY: Macro utilizada en el Broker para enlazar el socket servidor a todas
 memset(...): Interacción directa con la memoria para inicializar a cero las estructuras sockaddr_in y los buffers de recepción, previniendo el envío o lectura de basura residual de memoria.
 
 close(...): Llamada al sistema POSIX para liberar el descriptor de archivo local. Al utilizar UDP, esta llamada no genera tráfico de red (no envía paquetes FIN/ACK), simplemente destruye el endpoint a nivel del sistema operativo local.
+
+---
 
 # Laboratorio 3: Sistema de Publicación-Suscripción (TCP)
 
