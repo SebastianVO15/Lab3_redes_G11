@@ -1,24 +1,12 @@
-/*
- * publisher_quic.c
- * Publicador de eventos sobre QUIC simplificado.
- *
- * Uso: ./publisher_quic <topic> <stream_id>
- * Ejemplo: ./publisher_quic "PartidoA" 1
- *
- * Compilar:
- *   gcc -o publisher_quic publisher_quic.c
- */
-
 #include "quic.h"
 
 #define BROKER_HOST "127.0.0.1"
-#define TIMEOUT_MS  500    /* ms antes de retransmitir */
+#define TIMEOUT_MS  500
 #define MAX_RETRIES 5
 
 static int fd;
 static struct sockaddr_in broker_addr;
 
-/* Espera ACK con timeout y retransmite si es necesario */
 static int send_reliable(QuicPacket *pkt, int pkt_len, uint32_t expected_seq) {
     struct timeval tv = { .tv_sec = 0, .tv_usec = TIMEOUT_MS * 1000 };
     setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
@@ -33,7 +21,7 @@ static int send_reliable(QuicPacket *pkt, int pkt_len, uint32_t expected_seq) {
         if (n > 0 && ack.hdr.type == PKT_ACK &&
             ack.hdr.seq == expected_seq) {
             printf("[PUB] ACK recibido para seq=%u\n", expected_seq);
-            return 0;   /* éxito */
+            return 0;
         }
         printf("[PUB] Timeout/NAK, reintentando (%d/%d)...\n",
                attempt + 1, MAX_RETRIES);
@@ -59,7 +47,6 @@ int main(int argc, char *argv[]) {
     };
     inet_pton(AF_INET, BROKER_HOST, &broker_addr.sin_addr);
 
-    /* ── 1. Handshake QUIC ── */
     QuicPacket pkt;
     int len = build_packet(&pkt, PKT_INITIAL, conn_id, 0, 0,
                            "HELLO", 6);
@@ -74,7 +61,6 @@ int main(int argc, char *argv[]) {
     printf("[PUB] Handshake OK. conn_id=%u stream_id=%u topic='%s'\n",
            conn_id, stream_id, topic);
 
-    /* ── 2. Enviar 10 mensajes del partido ── */
     const char *events[] = {
         "Inicio del partido",
         "Gol de Equipo A al minuto 12",
@@ -89,7 +75,6 @@ int main(int argc, char *argv[]) {
     };
 
     for (int i = 0; i < 10; i++) {
-        /* Formato del payload: "TOPIC|mensaje" */
         char payload[MAX_PAYLOAD];
         snprintf(payload, sizeof(payload), "%s|%s", topic, events[i]);
 
@@ -99,10 +84,9 @@ int main(int argc, char *argv[]) {
 
         printf("[PUB] Enviando seq=%d: %s\n", i, events[i]);
         send_reliable(&pkt, len, (uint32_t)i);
-        sleep(1);   /* 1 evento por segundo */
+        sleep(1);
     }
 
-    /* ── 3. Cerrar conexión ── */
     len = build_packet(&pkt, PKT_CLOSE, conn_id, 0, 0, "BYE", 4);
     send_packet(fd, &pkt, len, &broker_addr);
     printf("[PUB] Conexión cerrada.\n");

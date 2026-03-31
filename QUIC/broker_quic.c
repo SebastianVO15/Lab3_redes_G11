@@ -1,23 +1,8 @@
-/*
- * broker_quic.c
- * Broker pub-sub usando QUIC simplificado sobre UDP.
- *
- * Flujo:
- *  1. Recibe PKT_INITIAL de cualquier cliente → responde PKT_HANDSHAKE
- *  2. Si el cliente envía PKT_SUBSCRIBE → lo registra como subscriber(topic)
- *  3. Si el cliente envía PKT_STREAM    → lo redistribuye a subscribers del topic
- *  4. Confirma cada paquete de datos con PKT_ACK
- *
- * Compilar:
- *   gcc -o broker_quic broker_quic.c -lpthread
- */
-
 #include "quic.h"
 #include <pthread.h>
 
 #define MAX_SUBS 64
 
-/* ── Estado de un subscriber ── */
 typedef struct {
     int                active;
     uint32_t           conn_id;
@@ -29,7 +14,6 @@ static Subscriber subs[MAX_SUBS];
 static int        sub_count = 0;
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
-/* Registra un nuevo subscriber */
 static void register_subscriber(uint32_t conn_id,
                                  const char *topic,
                                  struct sockaddr_in *addr) {
@@ -49,7 +33,6 @@ static void register_subscriber(uint32_t conn_id,
     pthread_mutex_unlock(&lock);
 }
 
-/* Envía el mensaje a todos los subscribers del topic */
 static void broadcast(int fd, const char *topic,
                       const char *msg, uint16_t stream_id,
                       uint32_t seq) {
@@ -69,7 +52,6 @@ static void broadcast(int fd, const char *topic,
     pthread_mutex_unlock(&lock);
 }
 
-/* Envía ACK al remitente */
 static void send_ack(int fd, uint32_t conn_id, uint32_t seq,
                      struct sockaddr_in *dest) {
     QuicPacket ack;
@@ -99,7 +81,6 @@ int main(void) {
         switch (type) {
 
         case PKT_INITIAL: {
-            /* Handshake: el cliente quiere abrir conexión */
             printf("[BROKER] INITIAL de conn=%u\n", conn_id);
             QuicPacket hs;
             const char *msg = "QUIC_HANDSHAKE_OK";
@@ -110,7 +91,6 @@ int main(void) {
         }
 
         case PKT_SUBSCRIBE: {
-            /* Payload contiene el topic */
             pkt.payload[pkt.hdr.payload_len] = '\0';
             register_subscriber(conn_id, pkt.payload, &src);
             send_ack(fd, conn_id, seq, &src);
@@ -118,10 +98,6 @@ int main(void) {
         }
 
         case PKT_STREAM: {
-            /*
-             * Payload formato: "TOPIC|mensaje"
-             * stream_id identifica el "canal" del publisher
-             */
             pkt.payload[pkt.hdr.payload_len] = '\0';
             char *sep = strchr(pkt.payload, '|');
             if (!sep) break;
