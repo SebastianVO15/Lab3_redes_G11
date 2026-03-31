@@ -6,7 +6,7 @@ Este proyecto implementa un sistema de mensajería bajo el patrón de Publicaci�
 
 ---
 
-## 🛠️ Instrucciones de Compilación
+## Instrucciones de Compilación
 
 Para compilar los archivos fuente, es necesario utilizar el compilador `gcc` en un entorno Linux (nativo, máquina virtual o WSL). Abra una terminal en el directorio del proyecto y ejecute los siguientes comandos:
 
@@ -16,7 +16,7 @@ gcc subscriber_udp.c -o suscriptor
 gcc publisher_udp.c -o publicador
 
 
-## 🛠️ Instrucciones de Compilación
+## Instrucciones de Compilación
 
 Para compilar los archivos fuente, es necesario utilizar el compilador `gcc` en un entorno Linux (nativo, máquina virtual o WSL). Abra una terminal en el directorio del proyecto y ejecute los siguientes comandos:
 
@@ -26,7 +26,7 @@ gcc subscriber_udp.c -o suscriptor
 gcc publisher_udp.c -o publicador
 
 
-🚀 Instrucciones de Ejecución
+Instrucciones de Ejecución
 Para evaluar el sistema correctamente, se deben utilizar múltiples terminales simultáneas.
 
 Prueba Estándar 
@@ -60,7 +60,7 @@ Ejecute el sistema y observe en las terminales de los suscriptores cómo la secu
 
 
 
-📚 Documentación y Justificación de Librerías (Req. 6.2)
+Documentación y Justificación de Librerías
 En estricto cumplimiento con los lineamientos del laboratorio, no se utilizaron librerías externas de terceros. El sistema fue construido íntegramente utilizando la interfaz estándar de Berkeley Sockets de los sistemas POSIX.
 
 A continuación, se detalla la interacción del código con cada función utilizada de las librerías nativas <sys/socket.h> y <arpa/inet.h>:
